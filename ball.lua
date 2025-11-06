@@ -1,3 +1,5 @@
+require('utils')
+
 Ball = {}
 Ball.__index = Ball
 
@@ -34,45 +36,36 @@ function Ball:draw()
 end
 
 function Ball:move(game)
-    local nextX = self.x + self.dx
-    local nextY = self.y + self.dy
+    local nextPos = {
+        x = self.x + self.dx,
+        y = self.y + self.dy
+    }
 
-    if nextX <= 0 then
+    if Collides(nextPos, game.player1) or Collides(nextPos, game.player2) then
+        self.dx = self.dx * -1
+        self.dy = self.dy * -1
+
+        return
+    end
+
+    if nextPos.x <= game.player1.x then
         game.score2 = game.score2 + 1
         self:reset()
-        print("score player 2")
 
         return
     end
 
-    if nextX >= love.graphics.getWidth() then
+    if nextPos.x >= game.player2.x + game.player2.width then
         game.score1 = game.score1 + 1
         self:reset()
-        print("score player 1")
 
         return
     end
 
-    local player2 = game.player2
-    if nextX >= player2.x and nextX <= (player2.x + player2.width) and nextY >= player2.y and nextY <= (player2.y + player2.height) then
-        self.dx = self.dx * -1
-        self.dy = self.dy * -1
-
-        return
-    end
-
-    local player1 = game.player1
-    if nextX >= player1.x and nextX <= (player1.x + player1.width) and nextY >= player1.y and nextY <= (player1.y + player1.height) then
-        self.dx = self.dx * -1
-        self.dy = self.dy * -1
-
-        return
-    end
-
-    if nextY >= love.graphics.getHeight() or nextY <= 0 then
+    if nextPos.y >= love.graphics.getHeight() or nextPos.y <= 0 then
         self.dy = self.dy * -1
     end
 
-    self.x = self.x + self.dx
-    self.y = self.y + self.dy
+    self.x = nextPos.x
+    self.y = nextPos.y
 end
